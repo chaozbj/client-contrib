@@ -31,7 +31,7 @@ import (
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
-func NewAdminCommand(params ...pkg.AdminParams) *cobra.Command {
+func NewAdminCommand() *cobra.Command {
 	p := &pkg.AdminParams{}
 	p.Initialize()
 

@@ -51,4 +51,8 @@ func TestNewAdminCommand(t *testing.T) {
 		assert.NilError(t, err)
 		assert.Check(t, strings.Contains(output, "Usage:\n  kn\u00a0admin [command]\n"), "invalid usage %q", output)
 	})
+
+	t.Run("kubectl context is not set", func(t *testing.T) {
+
+	})
 }

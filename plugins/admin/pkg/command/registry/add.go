@@ -94,12 +94,17 @@ func NewRegistryAddCommand(p *pkg.AdminParams) *cobra.Command {
 				Data: secretData,
 			}
 
-			secret, err = p.ClientSet.CoreV1().Secrets("default").Create(secret)
+			client, err := p.NewKubeClient()
+			if err != nil {
+				return err
+			}
+
+			secret, err = client.CoreV1().Secrets("default").Create(secret)
 			if err != nil {
 				return fmt.Errorf("failed to create secret: %v", err)
 			}
 
-			defaultSa, err := p.ClientSet.CoreV1().ServiceAccounts("default").Get("default", metav1.GetOptions{})
+			defaultSa, err := client.CoreV1().ServiceAccounts("default").Get("default", metav1.GetOptions{})
 			if err != nil {
 				return fmt.Errorf("failed to get ServiceAccount: %v", err)
 			}
@@ -108,7 +113,7 @@ func NewRegistryAddCommand(p *pkg.AdminParams) *cobra.Command {
 				Name: secret.Name,
 			})
 
-			_, err = p.ClientSet.CoreV1().ServiceAccounts("default").Update(desiredSa)
+			_, err = client.CoreV1().ServiceAccounts("default").Update(desiredSa)
 			if err != nil {
 				return fmt.Errorf("failed to add registry secret in default ServiceAccount: %v", err)
 			}

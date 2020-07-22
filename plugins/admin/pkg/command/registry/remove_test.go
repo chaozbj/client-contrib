@@ -26,17 +26,12 @@ import (
 
 	"knative.dev/client-contrib/plugins/admin/pkg"
 	"knative.dev/client-contrib/plugins/admin/pkg/testutil"
-
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 )
 
 func TestNewRegistryRmCommand(t *testing.T) {
 	t.Run("incompleted args for registry remove", func(t *testing.T) {
-		client := k8sfake.NewSimpleClientset()
-		p := pkg.AdminParams{
-			ClientSet: client,
-		}
-		cmd := NewRegistryRmCommand(&p)
+		p, _ := testutil.NewTestAdminParams()
+		cmd := NewRegistryRmCommand(p)
 
 		_, err := testutil.ExecuteCommand(cmd, "--username", "")
 		assert.ErrorContains(t, err, "requires the registry username")
@@ -46,11 +41,8 @@ func TestNewRegistryRmCommand(t *testing.T) {
 	})
 
 	t.Run("registry not found", func(t *testing.T) {
-		client := k8sfake.NewSimpleClientset()
-		p := pkg.AdminParams{
-			ClientSet: client,
-		}
-		cmd := NewRegistryRmCommand(&p)
+		p, _ := testutil.NewTestAdminParams()
+		cmd := NewRegistryRmCommand(p)
 		o, err := testutil.ExecuteCommand(cmd, "--username", "user", "--server", "docker.io")
 		assert.NilError(t, err)
 		assert.Check(t, strings.Contains(o, "No registry found"), "unexpected output: %s", o)
@@ -94,12 +86,8 @@ func TestNewRegistryRmCommand(t *testing.T) {
 				".dockerconfigjson": j,
 			},
 		}
-		client := k8sfake.NewSimpleClientset(&sa, &secret)
-		p := pkg.AdminParams{
-			ClientSet: client,
-		}
-
-		cmd := NewRegistryRmCommand(&p)
+		p, client := testutil.NewTestAdminParams(&sa, &secret)
+		cmd := NewRegistryRmCommand(p)
 		o, err := testutil.ExecuteCommand(cmd, "--username", "user", "--server", "docker.io")
 		assert.NilError(t, err)
 		assert.Check(t, strings.Contains(o, "ImagePullSecrets of ServiceAccount 'default/default' updated"), "unexpected output: %s", o)
